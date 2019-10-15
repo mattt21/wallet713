@@ -38,6 +38,8 @@ pub enum InitialPromptOption {
 }
 
 pub fn password_prompt() -> Result<ZeroingString, Error> {
+	// cannot use rpassword for child_process executions on windows
+	/*
 	let password = match prompt_password_stdout("Password: ") {
 		Ok(p) => p,
 		Err(_) => {
@@ -48,6 +50,15 @@ pub fn password_prompt() -> Result<ZeroingString, Error> {
 	};
 
 	Ok(password.into())
+	*/
+	print!("Password: ");
+	io::stdout().flush().unwrap();
+	let mut line = String::new();
+	if io::stdin().read_line(&mut line).unwrap() == 0 {
+		return Err(ErrorKind::GenericError("Unable to read password prompt".to_owned()).into());
+	}
+	let line = line.trim();
+	Ok(line.into())
 }
 
 pub fn error<D>(msg: D)
